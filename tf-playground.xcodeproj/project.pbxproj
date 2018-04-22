@@ -7,17 +7,25 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		9774CBA9208CCD60008CD84C /* linreg.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = linreg.py; sourceTree = SOURCE_ROOT; };
+		9774CBAB208CCEED008CD84C /* linreg.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = linreg.py; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		9774CB9D208B6C3A008CD84C = {
 			isa = PBXGroup;
 			children = (
-				9774CBA9208CCD60008CD84C /* linreg.py */,
+				9774CBAA208CCEC1008CD84C /* basic */,
 			);
 			sourceTree = "<group>";
 			usesTabs = 0;
+		};
+		9774CBAA208CCEC1008CD84C /* basic */ = {
+			isa = PBXGroup;
+			children = (
+				9774CBAB208CCEED008CD84C /* linreg.py */,
+			);
+			path = basic;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
