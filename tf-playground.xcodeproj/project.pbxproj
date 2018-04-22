@@ -8,6 +8,7 @@
 
 /* Begin PBXFileReference section */
 		9774CBAB208CCEED008CD84C /* linreg.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = linreg.py; sourceTree = "<group>"; };
+		9774CBAC208CD857008CD84C /* linreg_tensorboard.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; path = linreg_tensorboard.py; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -22,6 +23,7 @@
 		9774CBAA208CCEC1008CD84C /* basic */ = {
 			isa = PBXGroup;
 			children = (
+				9774CBAC208CD857008CD84C /* linreg_tensorboard.py */,
 				9774CBAB208CCEED008CD84C /* linreg.py */,
 			);
 			path = basic;

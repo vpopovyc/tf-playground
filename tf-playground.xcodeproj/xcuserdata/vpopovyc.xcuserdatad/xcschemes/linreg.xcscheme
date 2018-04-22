@@ -58,6 +58,10 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "$(SRCROOT)/basic/linreg.py"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "$(SRCROOT)/basic/linreg_tensorboard.py"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
