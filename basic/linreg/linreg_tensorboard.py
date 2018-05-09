@@ -41,7 +41,7 @@ with tf.Session() as session:
     session.run(init)
     writer.add_graph(session.graph)
     for i in range(5000):
-        feed_dict = {x: sequence, y_true: true_sequnce}
+            feed_dict = {x: sequence, y_true: true_sequnce}
         session.run(optimizer, feed_dict)
         if i % 10 == 0:
             feed_dict = {x: test_sequence, y_true: test_true_sequence}
