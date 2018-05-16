@@ -16,39 +16,32 @@ for point in base_set:
 
 rotated_set = np.dot(base_set, rot_matrix)
 
-# variance = np.sum(np.square((base_set-base_centroid)), axis=0)/(base_set.size-1)
-
-# relative_variance = variance/(base_centroid+np.finfo(float).eps)
-
-# covariance = np.mean((base_set-base_centroid)*(rotated_set-rotated_centroid), axis=0)
-
 def closest_point(point, scene_points):
   min_distance = np.inf
-  closest_point_index = -1
-  i = 0
+  closest_point = [0.0, 0.0, 0.0]
   for scene_point in scene_points:
       distance = np.sqrt(np.square(np.sum(point - scene_point)))
       if min_distance > distance:
           min_distance = distance
-          closest_point_index = i
-      i += 1
+          closest_point = scene_point
   assert np.isinf(min_distance) == False
-  return closest_point_index
+  return closest_point
 
-def plot_closest_points(base_set, rotated_set, indices_of_closest_points):
-  for index in range(base_set.shape[0]):
-    wIndex = indices_of_closest_points[index]
-    plt.plot([rotated_set[index, 0], base_set[wIndex, 0]],
-             [rotated_set[index, 1], base_set[wIndex, 1]],
-             linestyle=":")
+# TODO
+# def plot_closest_points(base_set, rotated_set, closest_points):
+  # for index in range(base_set.shape[0]):
+  #   plt.plot([rotated_set[index, 0], base_set[wIndex, 0]],
+  #            [rotated_set[index, 1], base_set[wIndex, 1]],
+  #            linestyle=":")
 
 def l2_norm(x):
     x = np.sqrt(np.sum(np.square(x)))
 
 def compute_mse(set):
-    np.mean(set)
+  set = np.sum(set, axis=0)  
+  return np.dot(np.transpose(set), set)
 
-def align(scene_points, model_points):
+def find_rts(scene_points, model_points):
 
     # Find centroids of two point sets
     scene_centroid = np.mean(base_set, axis=0)
@@ -83,32 +76,75 @@ def align(scene_points, model_points):
 
     ei_values, ei_vector = np.linalg.eig(N)
 
-    '''
-    Stop here
-    Find largest positive eigen value(it's) -> eigen vector
-    ''' 
+    quat = ei_vector[:, 0]
 
-    # print (N, "\n", ei_values, "\n", ei_vector)
+    q = np.array(
+    [
+     [quat[0], -quat[1], -quat[2], -quat[3]],
+     [quat[1],  quat[0], -quat[3],  quat[2]],
+     [quat[2],  quat[3],  quat[0], -quat[1]],
+     [quat[3], -quat[2],  quat[1],  quat[0]]
+    ])
+
+    q_bar = np.array(
+    [
+     [quat[0],  quat[1], -quat[2], -quat[3]],
+     [quat[1],  quat[0],  quat[3], -quat[2]],
+     [quat[2], -quat[3],  quat[0],  quat[1]],
+     [quat[3],  quat[2], -quat[1],  quat[0]]
+    ])
+
+    rotation = np.dot(np.transpose(q_bar), q)[1:4, 1:4]
+    '''
+               Σ||y'||^2 
+    Scale => ( ––––––––– ) ^ -1
+               Σ||p'||^2
+    '''
+    sum_sp = np.sum(np.dot(np.transpose(scene_prime_points), scene_prime_points))
+    sum_mp = np.sum(np.dot(np.transpose(model_prime_points), model_prime_points))
+
+    scale = np.sqrt(sum_sp / sum_mp)
+    print("Scale: ", scale)
+
+    translation = scene_centroid - scale * np.matmul(rotation, model_centroid) 
+
+    print(scene_centroid, model_centroid, scene_centroid - model_centroid, translation)
+
+    return rotation, scale, translation
 
 
 def icp_loop(scene_points, model_points):
 
-  indices_of_closest_points = []
+  closest_points = []
 
   for model_point in model_points:
     # Find closest point in scene_points
-    indices_of_closest_points.append(closest_point(model_point, scene_points))
+    closest_points.append(closest_point(model_point, scene_points))
 
+  rotation, scale, translation = find_rts(closest_points, model_points)
 
-  align(scene_points, model_points)
-  plot_closest_points(base_set, rotated_set, indices_of_closest_points)
+  new_model_points = scale * np.transpose(np.matmul(rotation, np.transpose(model_points)))
 
-icp_loop(base_set, rotated_set)
+  for point in new_model_points:
+    point += translation
 
-# plt.text(-10.0, 10.0, "relative_variance: " + str(relative_variance), ha="left")
-# plt.text(-10.0, 9.0, "covariance: " + str(covariance), ha="left")
+  loss = compute_mse(closest_points - new_model_points)
+
+  print("Loss: ", loss, compute_mse(scene_points - scene_points))
+
+  return new_model_points
+
+def icp(scene_points, model_points):
+  for i in range(1):
+    model_points = icp_loop(scene_points, model_points)
+
+  return model_points
+
+new_rotated_set = icp(base_set, rotated_set)
+
 plt.plot(base_set[:, 0], base_set[:, 1])
 plt.plot(rotated_set[:, 0], rotated_set[:, 1])
+plt.plot(new_rotated_set[:, 0], new_rotated_set[:, 1], linestyle='dashed')
 # plt.plot(base_centroid[0], base_centroid[1], 'bo')
 # plt.plot(rotated_centroid[0], rotated_centroid[1], 'bo')
 plt.grid(True)
